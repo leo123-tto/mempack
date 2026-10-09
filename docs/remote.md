@@ -56,6 +56,12 @@ bash ~/.agents/skills/mempack/scripts/drop.sh <下载的文件> <是哪个 AI>
    rsync -a --delete --checksum --exclude '留底-*/' ~/mempack-work/mempack-data/ 主机名:mempack-data/
    ```
    放回前先在那台机器上备份一份正本（`tar` 到 `~/mempack-backups/pre-overwrite-<时间>.tar.gz`），放回后逐文件比对一遍（两边 `md5` 或 `rsync -n -c` 应为空）。
+
+   **放回前先试放一遍，看你取走之后那台机器上有没有来新东西。** 你在本机整理的这段时间里，那台机器照样在收件：定时取信会往 `inbox/` 放新件、往 `run/` 里写取件日志，别的 AI 也可能刚做完一次「记忆上传」。直接带 `--delete` 放回，这些都会被你手上的旧副本盖掉或删掉——收件箱里新来的一份会凭空消失，取件日志少一行，下次点名就把「交过」报成「没交」。所以：
+   ```
+   rsync -a -n -i --delete --checksum --exclude '留底-*/' ~/mempack-work/mempack-data/ 主机名:mempack-data/
+   ```
+   先看它列出的变动：`inbox/` 下要删的，凡是不是你这次已经收进 `originals/` 的，都是新来的；`run/` 下有你没碰过、却要被改回旧样的文件（比如取件日志），说明那边写过。有这两种情况，先把那几份从那台机器取回本机副本（新来的件留在 `inbox/` 等下一轮，日志用那边的），再试放，直到列出的只剩你这次改的东西，才真的放回。
 4. **做完立刻删掉本机那份**（`rm -rf ~/mempack-work/mempack-data/`），并在 `run/STATUS.md` 里记一行：取回的时间、做的哪一轮、放回的时间、比对结果、本机副本已删。
 
 这么做的取舍：本机工作期间，记忆全文在这台电脑上，同机别的 AI 技术上读得到；这是为了让本机的 AI 能整理，换来的一次性暴露。整理完马上删，暴露窗口就这一次。
