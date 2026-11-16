@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # mempack · 上传记忆：把一个本机命令行 AI 自己的记忆文件原样复制到投递箱。
-# 用法：collect-local.sh <来源> [--dry-run]
+# 用法：collect-local.sh <来源> [--dry-run]；同一种 AI 在几台机器上都交时，设 MEMPACK_LABEL=<来源>-<机器> 区分
 # 来源：claude-code codex grok-build openclaw pi qoder qwen-code qwenwork qoderwork workbuddy zcode
 # 只复制、不读取投递箱；疑似含凭据的文件不复制，只在清单里列出文件名。
 # 不跟随软链接：find 不带 -L，软链进来的目录不会被遍历，软链的文件也跳过。
@@ -38,7 +38,7 @@ esac
 # 宁可多拦：拦下的只列文件名，由主人决定。
 guard='(密码|口令|password|passwd|passphrase)[^"'"'"'「“`]{0,12}["'"'"'「“`][A-Za-z0-9!@#$%^&*._+-]{4,}["'"'"'」”`]|(密码|口令|password|passwd|passphrase)[[:space:]]*[:：=][[:space:]]*[A-Za-z0-9!@#$%^&*._+-]{4,}|send[[:space:]]+"[^"]{4,}\\r"|(密码|口令)(是|为)[[:space:]]*[A-Za-z0-9!@#$%^&*._+-]{4,}|授权码[^A-Za-z0-9]{0,6}[A-Za-z0-9]{8,}|[a-z][a-z0-9+]*://[^/[:space:]:@]+:[^@[:space:]/]{4,}@|Bearer[[:space:]]+[A-Za-z0-9._-]{20,}|eyJ[A-Za-z0-9_-]{20,}|xox[bap]-[A-Za-z0-9-]{10,}|sk-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sbp_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{12,}|BEGIN [A-Z ]*PRIVATE KEY|(token|secret|api[_-]?key)[[:space:]]*[:：=][[:space:]]*[A-Za-z0-9_.-]{20,}'
 
-dest="$inbox/${src}-$stamp"
+dest="$inbox/${MEMPACK_LABEL:-$src}-$stamp"   # MEMPACK_LABEL：同一种 AI 装在几台机器上时，用它区分来源名（如 pi-另一台）
 copied=0; bytes=0; blocked=()
 
 set -f  # find 条件里的 * 不让 shell 展开
